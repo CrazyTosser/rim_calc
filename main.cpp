@@ -93,6 +93,7 @@ int64_t rimToArab(std::string str) {
 }
 
 void printRim(int64_t num) {
+    std::cout << num << std::endl;
     if (num == 0)
         std::cout << "Z" << std::endl;
     else {
@@ -149,7 +150,7 @@ void printRim(int64_t num) {
         if (num / 4 == 1) {
             num -= 4;
             std::cout << 'I';
-            std::cout << 'X';
+            std::cout << 'V';
         }
         for (; num > 0; num--) {
             std::cout << 'I';
@@ -235,13 +236,13 @@ int calc(std::string &s, int64_t *res) {
     bool may_unary = true;
     std::vector<int64_t> st;
     std::vector<char> op;
-    for (size_t i = 0; i < s.length(); ++i)
-        if ((s[i]) != ' ')
-            if (s[i] == '(') {
+    for (auto it = s.begin(); it != s.end(); it++)
+        if (*it != ' ') {
+            if (*it == '(') {
                 op.push_back('(');
                 may_unary = true;
             } else {
-                if (s[i] == ')') {
+                if (*it == ')') {
                     while (op.back() != '(') {
                         int tmp = process_op(st, op.back());
                         if (tmp != 0) return tmp;
@@ -249,8 +250,8 @@ int calc(std::string &s, int64_t *res) {
                     }
                     op.pop_back();
                     may_unary = false;
-                } else if (is_op(s[i])) {
-                    char curop = s[i];
+                } else if (is_op(*it)) {
+                    char curop = *it;
                     if (may_unary && curop == '-') curop = -curop;
                     while (!op.empty() && priority(op.back()) >= priority(curop)) {
                         int tmp = process_op(st, op.back());
@@ -261,16 +262,20 @@ int calc(std::string &s, int64_t *res) {
                     may_unary = true;
                 } else {
                     std::string operand;
-                    while (i < s.length() && isalnum(s[i]))
-                        operand += s[i++];
-                    --i;
+                    while (it != s.end() && is_rim(*it)) {
+                        operand += *it;
+                        it++;
+                    }
+                    it--;
                     if (is_rim(operand[0]))
                         st.push_back(rimToArab(operand));
                     else
                         return 1;
+                    if (st.back() == -1) return 1;
                     may_unary = false;
                 };
             }
+        }
     while (!op.empty())
         process_op(st, op.back()), op.pop_back();
     *res = st.back();
@@ -290,13 +295,13 @@ int main() {
                 printRim(res);
                 break;
             case 1:
-                std::cout << "error: wrong input";
+                std::cout << "error: wrong input" << std::endl;
                 break;
             case 2:
-                std::cout << "error: zero division";
+                std::cout << "error: zero division" << std::endl;
                 break;
             case 3:
-                std::cout << "error: overflow detected";
+                std::cout << "error: overflow detected" << std::endl;
                 break;
         }
     }
